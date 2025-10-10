@@ -1,0 +1,268 @@
+<!doctype html>
+<html lang="pt-PT">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Backoffice — Noite Eleitoral Lourinhã</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+</head>
+<body class="bg-white text-zinc-900">
+  <div class="max-w-3xl mx-auto p-4 md:p-6">
+    <header class="mb-6">
+      <h1 class="text-2xl font-bold">Backoffice — Inserção de Resultados</h1>
+      <p class="text-sm text-zinc-600">Selecione Freguesia, Mesa e Ato; depois insira os votos por partido, brancos e nulos.</p>
+    </header>
+
+    <form id="frm" class="space-y-4">
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-3">
+        <div>
+          <label class="text-sm text-zinc-600">Freguesia</label>
+          <select id="freguesia" class="mt-1 w-full border border-zinc-300 rounded-lg px-3 py-2"></select>
+        </div>
+        <div>
+          <label class="text-sm text-zinc-600">Mesa</label>
+          <select id="mesa" class="mt-1 w-full border border-zinc-300 rounded-lg px-3 py-2"></select>
+        </div>
+        <div>
+          <label class="text-sm text-zinc-600">Ato</label>
+          <select id="ato" class="mt-1 w-full border border-zinc-300 rounded-lg px-3 py-2">
+            <option value="camara">Câmara</option>
+            <option value="assembleia">Assembleia</option>
+            <option value="junta">Junta</option>
+          </select>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
+        <div>
+          <label class="text-sm">AD</label>
+          <input id="v_ad" type="number" min="0" class="mt-1 w-full border border-zinc-300 rounded-lg px-3 py-2" value="0" />
+        </div>
+        <div>
+          <label class="text-sm">PS</label>
+          <input id="v_ps" type="number" min="0" class="mt-1 w-full border border-zinc-300 rounded-lg px-3 py-2" value="0" />
+        </div>
+        <div>
+          <label class="text-sm">CHEGA</label>
+          <input id="v_ch" type="number" min="0" class="mt-1 w-full border border-zinc-300 rounded-lg px-3 py-2" value="0" />
+        </div>
+        <div>
+          <label class="text-sm">CDU</label>
+          <input id="v_cdu" type="number" min="0" class="mt-1 w-full border border-zinc-300 rounded-lg px-3 py-2" value="0" />
+        </div>
+        <div>
+          <label class="text-sm">Brancos</label>
+          <input id="v_b" type="number" min="0" class="mt-1 w-full border border-zinc-300 rounded-lg px-3 py-2" value="0" />
+        </div>
+        <div>
+          <label class="text-sm">Nulos</label>
+          <input id="v_n" type="number" min="0" class="mt-1 w-full border border-zinc-300 rounded-lg px-3 py-2" value="0" />
+        </div>
+      </div>
+
+      <div class="p-3 rounded-lg bg-zinc-50 text-sm text-zinc-700">
+        <span class="mr-3">Válidos = AD + PS + CHEGA + CDU</span>
+        <span id="validos" class="font-medium">0</span>
+        <span class="mx-3">| Votantes (apurados) = Válidos + Brancos + Nulos</span>
+        <span id="votantes" class="font-medium">0</span>
+      </div>
+
+	  <div class="flex items-center gap-2">
+	    <button id="btnSubmit" type="submit" class="px-4 py-2 rounded-lg bg-zinc-900 text-white">Confirmar</button>
+	    <button type="button" id="btnClear" class="px-3 py-2 rounded-lg border border-zinc-300">Limpar</button>
+  	    <button type="button" id="btnReset" class="px-3 py-2 rounded-lg border border-red-300 text-red-700 hover:bg-red-50">Reset BD</button>
+	    <a href="/" class="ml-auto text-sm text-blue-700 underline">Ir para o site público</a>
+	  </div>
+
+    </form>
+
+    <div id="msg" class="mt-4 hidden"></div>
+  </div>
+
+<script>
+const el = (id) => document.getElementById(id);
+const fregSel = el('freguesia');
+const mesaSel = el('mesa');
+const atoSel  = el('ato');
+const inputs  = { ad: el('v_ad'), ps: el('v_ps'), ch: el('v_ch'), cdu: el('v_cdu'), b: el('v_b'), n: el('v_n') };
+
+function nf(n){ return new Intl.NumberFormat('pt-PT').format(n ?? 0); }
+function showMsg(html, ok=true){
+  const box = el('msg');
+  box.className = `mt-4 p-3 rounded-lg ${ok ? 'bg-green-50 text-green-800 border border-green-200' : 'bg-red-50 text-red-800 border border-red-200'}`;
+  box.innerHTML = html;
+  box.classList.remove('hidden');
+}
+
+function setBusy(busy) {
+  document.querySelectorAll('button, select, input').forEach(el => el.disabled = !!busy);
+}
+
+function buildResumo(payload) {
+  const fregNome = fregSel.options[fregSel.selectedIndex]?.text || payload.freguesia_id;
+  const atoNome  = atoSel.options[atoSel.selectedIndex]?.text || payload.ato;
+  const totaisValidos = (+inputs.ad.value||0) + (+inputs.ps.value||0) + (+inputs.ch.value||0) + (+inputs.cdu.value||0);
+  const votantes = totaisValidos + (+inputs.b.value||0) + (+inputs.n.value||0);
+
+  return [
+    `Confirma guardar estes resultados?`,
+    ``,
+    `— Freguesia: ${fregNome}`,
+    `— Mesa: ${payload.mesa_codigo}`,
+    `— Ato: ${atoNome}`,
+    ``,
+    `AD: ${payload.votos_ad}  |  PS: ${payload.votos_ps}`,
+    `CHEGA: ${payload.votos_chega}  |  CDU: ${payload.votos_cdu}`,
+    `Brancos: ${payload.brancos}  |  Nulos: ${payload.nulos}`,
+    ``,
+    `Válidos: ${totaisValidos}  |  Votantes (apurados): ${votantes}`
+  ].join('\n');
+}
+
+
+
+// --- helpers fetch com debug ---
+async function fetchJSON(url){
+  const res = await fetch(url, { cache: 'no-store' });
+  if(!res.ok){
+    const text = await res.text().catch(()=> '');
+    throw new Error(`${res.status} ${res.statusText} — ${text.slice(0,200)}`);
+  }
+  return res.json();
+}
+
+// --- totais em tempo real nos inputs ---
+function updateTotals(){
+  const validos = (+inputs.ad.value||0) + (+inputs.ps.value||0) + (+inputs.ch.value||0) + (+inputs.cdu.value||0);
+  const votantes = validos + (+inputs.b.value||0) + (+inputs.n.value||0);
+  el('validos').textContent  = nf(validos);
+  el('votantes').textContent = nf(votantes);
+}
+Object.values(inputs).forEach(i => i.addEventListener('input', updateTotals));
+
+// --- carregar freguesias/mesas ---
+async function loadFreguesias(){
+  try{
+    const data = await fetchJSON('/api/freguesias');
+    console.log('freguesias:', data);
+    if(!Array.isArray(data) || !data.length){
+      showMsg('⚠️ Sem freguesias na base de dados (0 linhas). Corre os seeds nessa BD.', false);
+      fregSel.innerHTML = ''; return;
+    }
+    fregSel.innerHTML = data.map(f => `<option value="${f.id}">${f.nome}</option>`).join('');
+    // dispara change para carregar mesas
+    fregSel.dispatchEvent(new Event('change'));
+  }catch(e){
+    console.error(e);
+    showMsg('Erro a carregar freguesias: ' + e.message, false);
+  }
+}
+
+async function loadMesas(){
+  try{
+    const id = fregSel.value;
+    mesaSel.innerHTML = '<option disabled>...</option>';
+    const data = await fetchJSON(`/api/mesas?freguesia_id=${encodeURIComponent(id)}`);
+    console.log('mesas de', id, data);
+    if(!Array.isArray(data) || !data.length){
+      showMsg(`⚠️ Sem mesas para ${id}. Verifica se criaste M01..M05.`, false);
+      mesaSel.innerHTML = ''; return;
+    }
+    mesaSel.innerHTML = data
+      .map(m => `<option value="${m.mesa_voto_id}" data-codigo="${m.mesa_codigo}">${m.mesa_codigo}</option>`)
+      .join('');
+  }catch(e){
+    console.error(e);
+    showMsg('Erro a carregar mesas: ' + e.message, false);
+  }
+}
+
+fregSel.addEventListener('change', loadMesas);
+
+// --- limpar / submit ---
+el('btnClear').onclick = () => { Object.values(inputs).forEach(i => i.value = 0); updateTotals(); };
+
+el('frm').addEventListener('submit', async (e) => {
+  e.preventDefault();
+  try{
+    const opt = mesaSel.options[mesaSel.selectedIndex];
+    if(!opt){ showMsg('Selecione uma mesa válida.', false); return; }
+
+    const payload = {
+      freguesia_id: fregSel.value,
+      mesa_voto_id: opt.value,
+      mesa_codigo: opt.dataset.codigo,
+      ato: atoSel.value,
+      votos_ad:+inputs.ad.value||0, votos_ps:+inputs.ps.value||0,
+      votos_chega:+inputs.ch.value||0, votos_cdu:+inputs.cdu.value||0,
+      brancos:+inputs.b.value||0, nulos:+inputs.n.value||0
+    };
+
+    // confirmação já existente no teu fluxo
+    const ok = window.confirm(buildResumo(payload));
+    if(!ok){ showMsg('Operação cancelada pelo utilizador.', false); return; }
+
+    setBusy(true);
+    const res = await fetch('/api/resultados', {
+      method:'POST', headers:{'Content-Type':'application/json'}, body:JSON.stringify(payload)
+    });
+    const out = await res.json().catch(()=> ({}));
+    if(!res.ok) throw new Error(out?.error || `HTTP ${res.status}`);
+
+    // mensagem principal (verde)
+    const msgOk = `<strong>Guardado!</strong> ID ${out.id}. Mesa <strong>${payload.mesa_codigo}</strong> — ${atoSel.options[atoSel.selectedIndex].text}.`;
+
+    // se já existia, adiciona aviso amarelo por baixo
+    const warnDup = out.hadPrevious
+      ? `<div class="mt-2 p-2 rounded-md border border-yellow-300 bg-yellow-50 text-yellow-800">
+           ⚠️ <span class="font-medium">Aviso:</span> já existia um registo para <strong>esta mesa</strong> e <strong>este ato</strong>.
+         </div>`
+      : '';
+
+    showMsg(msgOk + warnDup, true);
+  }catch(err){
+    console.error(err);
+    showMsg(`<strong>Erro:</strong> ${err.message}`, false);
+  }finally{
+    setBusy(false);
+  }
+});
+
+
+el('btnReset').addEventListener('click', async () => {
+  const warn = `⚠️ RESET TOTAL\n\nIsto vai APAGAR todos os resultados inseridos e repor as contagens a zero.\n\nEsta ação é irreversível. Continuar?`;
+  if(!window.confirm(warn)) return;
+
+  const text = window.prompt('Para confirmar escreva: RESET');
+  if((text||'').trim().toUpperCase() !== 'RESET'){
+    showMsg('Reset cancelado.', false);
+    return;
+  }
+
+  try{
+    setBusy(true);
+    const res = await fetch('/api/reset', { method:'POST' });
+    const out = await res.json().catch(()=> ({}));
+    if(!res.ok) throw new Error(out?.error || `HTTP ${res.status}`);
+
+    // ✅ versão simplificada
+    showMsg('✅ Reset concluído.');
+    el('btnClear').click();
+  }catch(err){
+    console.error(err);
+    showMsg(`<strong>Erro no reset:</strong> ${err.message}`, false);
+  }finally{
+    setBusy(false);
+  }
+});
+
+
+// --- init ---
+document.addEventListener('DOMContentLoaded', () => {
+  loadFreguesias();
+  updateTotals();
+});
+</script>
+
+</body>
+</html>
