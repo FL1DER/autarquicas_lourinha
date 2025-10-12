@@ -43,7 +43,7 @@
       <!-- Câmara -->
       <section id="tab-camara" class="space-y-6">
         <!-- KPIs -->
-        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-3">
           <div class="p-4 rounded-xl border border-zinc-200">
             <div class="text-xs text-zinc-500">Inscritos</div>
             <div id="kpi-camara-inscritos" class="text-2xl font-semibold">—</div>
@@ -55,6 +55,10 @@
           <div class="p-4 rounded-xl border border-zinc-200">
             <div class="text-xs text-zinc-500">Abstenção</div>
             <div id="kpi-camara-abst" class="text-2xl font-semibold">—</div>
+          </div>
+          <div class="p-4 rounded-xl border border-zinc-200">
+            <div class="text-xs text-zinc-500">Votos por apurar</div>
+            <div id="kpi-camara-por-apurar" class="text-2xl font-semibold">—</div>
           </div>
           <div id="kpi-camara-apuracao" class="p-4 rounded-xl border border-zinc-200"></div>
         </div>
@@ -128,7 +132,7 @@
 
       <!-- Assembleia -->
       <section id="tab-assembleia" class="space-y-6 hidden">
-        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-5 gap-3">
           <div class="p-4 rounded-xl border border-zinc-200">
             <div class="text-xs text-zinc-500">Inscritos</div>
             <div id="kpi-assembleia-inscritos" class="text-2xl font-semibold">—</div>
@@ -140,6 +144,10 @@
           <div class="p-4 rounded-xl border border-zinc-200">
             <div class="text-xs text-zinc-500">Abstenção</div>
             <div id="kpi-assembleia-abst" class="text-2xl font-semibold">—</div>
+          </div>
+          <div class="p-4 rounded-xl border border-zinc-200">
+            <div class="text-xs text-zinc-500">Votos por apurar</div>
+            <div id="kpi-assembleia-por-apurar" class="text-2xl font-semibold">—</div>
           </div>
           <div id="kpi-assembleia-apuracao" class="p-4 rounded-xl border border-zinc-200"></div>
         </div>
@@ -211,88 +219,88 @@
         </div>
       </section>
 
-		<!-- Juntas -->
-		<section id="tab-juntas" class="space-y-6 hidden">
-		  <!-- 5 KPIs -->
-		  <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
-			<div class="p-4 rounded-xl border border-zinc-200">
-			  <div class="text-xs text-zinc-500">Inscritos</div>
-			  <div id="kpi-junta-inscritos" class="text-2xl font-semibold">—</div>
-			</div>
-			<div class="p-4 rounded-xl border border-zinc-200">
-			  <div class="text-xs text-zinc-500">Votantes apurados</div>
-			  <div id="kpi-junta-votantes" class="text-2xl font-semibold">—</div>
-			</div>
-			<div class="p-4 rounded-xl border border-zinc-200">
-			  <div class="text-xs text-zinc-500">Abstenção</div>
-			  <div id="kpi-junta-abst" class="text-2xl font-semibold">—</div>
-			</div>
-			<div id="kpi-junta-apuracao" class="p-4 rounded-xl border border-zinc-200"></div>
-			<div id="kpi-junta-freg-finish" class="p-4 rounded-xl border border-zinc-200 hidden"></div>
-		  </div>
+      <!-- Juntas -->
+      <section id="tab-juntas" class="space-y-6 hidden">
+        <!-- 5 KPIs -->
+        <div class="grid grid-cols-1 md:grid-cols-5 gap-3">
+        <div class="p-4 rounded-xl border border-zinc-200">
+          <div class="text-xs text-zinc-500">Inscritos</div>
+          <div id="kpi-junta-inscritos" class="text-2xl font-semibold">—</div>
+        </div>
+        <div class="p-4 rounded-xl border border-zinc-200">
+          <div class="text-xs text-zinc-500">Votantes apurados</div>
+          <div id="kpi-junta-votantes" class="text-2xl font-semibold">—</div>
+        </div>
+        <div class="p-4 rounded-xl border border-zinc-200">
+          <div class="text-xs text-zinc-500">Abstenção</div>
+          <div id="kpi-junta-abst" class="text-2xl font-semibold">—</div>
+        </div>
+        <div id="kpi-junta-apuracao" class="p-4 rounded-xl border border-zinc-200"></div>
+        <div id="kpi-junta-freg-finish" class="p-4 rounded-xl border border-zinc-200 hidden"></div>
+        </div>
 
-		  <!-- Mapa + (Tabela) + (Gráfico separado) -->
-		  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-			<!-- MAPA -->
-			<figure class="lg:row-span-2">
-			  <div class="p-4 rounded-xl border border-zinc-200 relative">
-				<div class="flex items-center justify-between mb-3">
-				  <div class="font-semibold">Mapa do Concelho</div>
-				</div>
-				<div id="map-juntas" class="map-fig bg-zinc-50 rounded-lg overflow-hidden grid place-items-center">
-				  <div class="text-zinc-400 text-sm">A carregar mapa…</div>
-				</div>
-				<div class="absolute top-5 right-5 bg-white/80 backdrop-blur px-2.5 py-1.5 rounded-md shadow text-xs flex items-center gap-2">
-				  <span class="inline-block w-3 h-3 rounded-sm" style="background:#FFA500"></span> AD
-				  <span class="inline-block w-3 h-3 rounded-sm" style="background:#ec4899"></span> PS
-				  <span class="inline-block w-3 h-3 rounded-sm" style="background:#1e3a8a"></span> CHEGA
-				  <span class="inline-block w-3 h-3 rounded-sm" style="background:#dc2626"></span> CDU
-				</div>
-			  </div>
-			  <div class="mt-3 flex items-center justify-between text-sm">
-			<button id="juntas-reset" class="px-3 py-1.5 rounded-lg border border-zinc-300 bg-white">Mostrar Concelho</button>
-		  </div>
-			</figure>
+        <!-- Mapa + (Tabela) + (Gráfico separado) -->
+        <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <!-- MAPA -->
+        <figure class="lg:row-span-2">
+          <div class="p-4 rounded-xl border border-zinc-200 relative">
+          <div class="flex items-center justify-between mb-3">
+            <div class="font-semibold">Mapa do Concelho</div>
+          </div>
+          <div id="map-juntas" class="map-fig bg-zinc-50 rounded-lg overflow-hidden grid place-items-center">
+            <div class="text-zinc-400 text-sm">A carregar mapa…</div>
+          </div>
+          <div class="absolute top-5 right-5 bg-white/80 backdrop-blur px-2.5 py-1.5 rounded-md shadow text-xs flex items-center gap-2">
+            <span class="inline-block w-3 h-3 rounded-sm" style="background:#FFA500"></span> AD
+            <span class="inline-block w-3 h-3 rounded-sm" style="background:#ec4899"></span> PS
+            <span class="inline-block w-3 h-3 rounded-sm" style="background:#1e3a8a"></span> CHEGA
+            <span class="inline-block w-3 h-3 rounded-sm" style="background:#dc2626"></span> CDU
+          </div>
+          </div>
+          <div class="mt-3 flex items-center justify-between text-sm">
+        <button id="juntas-reset" class="px-3 py-1.5 rounded-lg border border-zinc-300 bg-white">Mostrar Concelho</button>
+        </div>
+        </figure>
 
-		  <!-- Tabela + Gráfico -->
-		  <div class="grid grid-rows-[auto_1fr] gap-6">
-		    <div class="p-4 rounded-xl border border-zinc-200">
-		      <div class="flex items-center justify-between mb-3">
-			    <h2 id="juntas-card-title" class="font-semibold">Juntas — clique no mapa</h2>
-				<span id="juntas-card-subtitle" class="text-xs text-zinc-500"></span>
-		      </div>
-			  <table class="w-full text-sm">
-				<thead class="text-left text-zinc-500">
-				  <tr>
-					<th class="py-2">Partido</th>
-					<th>Votos</th>
-					<th>%</th>
-					<th>👤</th>
-				  </tr>
-				</thead>
-				<tbody id="junta-table"></tbody>
-				<tfoot class="border-t border-zinc-200">
-				  <tr>
-					<td class="py-1 text-zinc-600">Brancos</td>
-					<td id="junta-brancos">—</td>
-					<td id="junta-brancos-pct">—</td>
-				  </tr>
-				  <tr>
-					<td class="py-1 text-zinc-600">Nulos</td>
-					<td id="junta-nulos">—</td>
-					<td id="junta-nulos-pct">—</td>
-				  </tr>
-				</tfoot>
-			  </table>
-			</div>
-			<div class="p-4 rounded-xl border border-zinc-200">
-			  <canvas id="junta-bar"></canvas>
-			</div>
-		  </div>
-		  <div class="mt-8 lg:col-span-2" id="juntas-freguesias-slot">
-			<h3 class="text-lg font-semibold mb-3">Resultados por freguesia</h3>
-		  </div>
-		</section>
+        <!-- Tabela + Gráfico -->
+        <div class="grid grid-rows-[auto_1fr] gap-6">
+          <div class="p-4 rounded-xl border border-zinc-200">
+            <div class="flex items-center justify-between mb-3">
+              <h2 id="juntas-card-title" class="font-semibold">Juntas — clique no mapa</h2>
+              <span id="juntas-card-subtitle" class="text-xs text-zinc-500"></span>
+            </div>
+            <table class="w-full text-sm">
+              <thead class="text-left text-zinc-500">
+                <tr>
+                  <th class="py-2">Partido</th>
+                  <th>Votos</th>
+                  <th>%</th>
+                  <th>👤</th>
+                </tr>
+              </thead>
+              <tbody id="junta-table"></tbody>
+              <tfoot class="border-t border-zinc-200">
+                <tr>
+                  <td class="py-1 text-zinc-600">Brancos</td>
+                  <td id="junta-brancos">—</td>
+                  <td id="junta-brancos-pct">—</td>
+                </tr>
+                <tr>
+                  <td class="py-1 text-zinc-600">Nulos</td>
+                  <td id="junta-nulos">—</td>
+                  <td id="junta-nulos-pct">—</td>
+                </tr>
+              </tfoot>
+            </table>
+          </div>
+          <div class="p-4 rounded-xl border border-zinc-200">
+            <canvas id="junta-bar"></canvas>
+          </div>
+        </div>
+        <div class="mt-8 lg:col-span-2" id="juntas-freguesias-slot">
+          <h3 class="text-lg font-semibold mb-3">Resultados por freguesia</h3>
+        </div>
+      </section>
     </main>
 
     <footer class="max-w-6xl mx-auto px-4 md:px-6 py-6 text-xs text-zinc-500">
