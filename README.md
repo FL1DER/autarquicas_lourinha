@@ -22,7 +22,7 @@ COMO INICIAR
 	npm start
 
 3\. Abrir no navegador:
-	http://localhost:3000
+	http://localhost:3000 e http://localhost:3000/backoffice
 
 --------------------------------------------------
 

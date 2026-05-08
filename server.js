@@ -65,10 +65,7 @@ function isLocal(req) {
     ip === 'localhost'
   );
 }
-function requireLocal(req, res, next) {
-  if (isLocal(req)) return next();
-  return res.status(403).send('Backoffice disponível apenas localmente.');
-}
+
 const ZERO_TOTAIS = { votos_ad:0, votos_ps:0, votos_chega:0, votos_cdu:0, brancos:0, nulos:0, validos:0 };
 const rowOrZero = (row) => row || { ...ZERO_TOTAIS, mesas_apuradas: 0 };
 
@@ -138,7 +135,6 @@ const mapPretty = (obj) => ({
 // API — Leitura pública
 // -------------------------------
 
-// Snapshot para o site público
 // Snapshot para o site público
 app.get('/api/snapshot', async (req, res) => {
   try {
@@ -379,13 +375,13 @@ setInterval(() => broadcast({ type: 'ping', t: Date.now() }), 25_000);
 // -------------------------------
 
 // Listar freguesias
-app.get('/api/freguesias', requireLocal, async (req, res) => {
+app.get('/api/freguesias', async (req, res) => {
   const { rows } = await pool.query('SELECT id, nome, inscritos FROM freguesias ORDER BY nome');
   res.json(rows);
 });
 
 // Listar mesas por freguesia
-app.get('/api/mesas', requireLocal, async (req, res) => {
+app.get('/api/mesas', async (req, res) => {
   const { freguesia_id } = req.query;
   if (!freguesia_id) return res.status(400).json({ error: 'freguesia_id é obrigatório' });
   const { rows } = await pool.query(
@@ -396,7 +392,7 @@ app.get('/api/mesas', requireLocal, async (req, res) => {
 });
 
 // Inserir resultados
-app.post('/api/resultados', requireLocal, async (req, res) => {
+app.post('/api/resultados', async (req, res) => {
   try {
     const {
       freguesia_id,
@@ -474,7 +470,7 @@ app.post('/api/resultados', requireLocal, async (req, res) => {
 });
 
 // Reset total — apaga todos os resultados (apenas local)
-app.post('/api/reset', requireLocal, async (req, res) => {
+app.post('/api/reset', async (req, res) => {
   const client = await pool.connect();
   try {
     await client.query('BEGIN');
@@ -502,11 +498,11 @@ app.post('/api/reset', requireLocal, async (req, res) => {
 // Ficheiros estáticos
 // -------------------------------
 
-// 1) Site público (só o que estiver na pasta ./public fica acessível)
+// 1) Site público (ficheiros ./public acessíveis)
 app.use(express.static(path.join(__dirname, 'public')));
 
-// 2) Backoffice só local — serve ./admin/backoffice.html
-app.get('/backoffice', requireLocal, (req, res) => {
+// 2) Backoffice público — serve ./public/backoffice.html
+app.get('/backoffice', (req, res) => {
   res.sendFile(path.join(__dirname, 'public', 'backoffice.html'));
 });
 
@@ -524,5 +520,89 @@ app.use((req, res, next) => {
 app.listen(PORT, () => {
   console.log(`✅ Servidor a ouvir em http://localhost:${PORT}`);
   console.log(`   Público: /  |  /api/snapshot  |  /api/stream`);
-  console.log(`   Local only: /backoffice  |  /api/freguesias  |  /api/mesas  |  /api/resultados`);
+  console.log(`   Backoffice público: /backoffice  |  /api/freguesias  |  /api/mesas  |  /api/resultados  |  /api/reset`);
 });
+
+
+
+
+/*
+-----------  TABELAS  ----------------- 
+
+create table if not exists freguesias (
+  id serial primary key,
+  nome text not null,
+  inscritos int not null default 0,
+  mesas_total int not null default 0
+);
+
+
+create table if not exists mesas_voto (
+  id serial primary key,
+  freguesia_id int not null references freguesias(id) on delete cascade,
+  numero int not null
+);
+
+
+create table if not exists resultados (
+  id serial primary key,
+  freguesia_id int not null references freguesias(id) on delete cascade,
+  mesa_id int references mesas_voto(id) on delete set null,
+  ato text not null check (ato in ('camara','assembleia','junta')),
+  votos_ad int not null default 0,
+  votos_ps int not null default 0,
+  votos_chega int not null default 0,
+  votos_cdu int not null default 0,
+  updated_at timestamptz not null default now()
+);
+
+
+-----------  VISTAS  -----------------
+
+CREATE OR REPLACE VIEW v_agg_municipio_por_ato AS
+SELECT
+    r.ato,
+    SUM(r.votos_ad) AS votos_ad,
+    SUM(r.votos_ps) AS votos_ps,
+    SUM(r.votos_chega) AS votos_chega,
+    SUM(r.votos_cdu) AS votos_cdu,
+    SUM(r.brancos) AS brancos,
+    SUM(r.nulos) AS nulos,
+    SUM(r.votos_ad + r.votos_ps + r.votos_chega + r.votos_cdu) AS validos,
+    COUNT(DISTINCT r.mesa_voto_id) AS mesas_apuradas
+FROM resultados r
+GROUP BY r.ato;
+
+CREATE VIEW v_agg_freguesia_camara_assembleia AS
+SELECT
+    r.freguesia_id,
+    r.ato,
+    SUM(r.votos_ad) AS votos_ad,
+    SUM(r.votos_ps) AS votos_ps,
+    SUM(r.votos_chega) AS votos_chega,
+    SUM(r.votos_cdu) AS votos_cdu,
+    SUM(r.brancos) AS brancos,
+    SUM(r.nulos) AS nulos,
+    SUM(r.votos_ad + r.votos_ps + r.votos_chega + r.votos_cdu) AS validos,
+    COUNT(DISTINCT r.mesa_voto_id) AS mesas_apuradas
+FROM resultados r
+WHERE r.ato IN ('camara','assembleia')
+GROUP BY r.freguesia_id, r.ato;
+
+CREATE VIEW v_agg_freguesia_junta AS
+SELECT
+    r.freguesia_id,
+    r.ato,
+    SUM(r.votos_ad) AS votos_ad,
+    SUM(r.votos_ps) AS votos_ps,
+    SUM(r.votos_chega) AS votos_chega,
+    SUM(r.votos_cdu) AS votos_cdu,
+    SUM(r.brancos) AS brancos,
+    SUM(r.nulos) AS nulos,
+    SUM(r.votos_ad + r.votos_ps + r.votos_chega + r.votos_cdu) AS validos,
+    COUNT(DISTINCT r.mesa_voto_id) AS mesas_apuradas
+FROM resultados r
+WHERE r.ato = 'junta'
+GROUP BY r.freguesia_id, r.ato;
+
+*/
