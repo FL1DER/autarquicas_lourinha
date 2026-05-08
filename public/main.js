@@ -867,10 +867,11 @@
 
 
     document.addEventListener('DOMContentLoaded', ()=>{
-        setupTabs();
-		inlineSvgInto('map-camara', 'camara');
-		inlineSvgInto('map-assembleia', 'assembleia');
-		inlineSvgInto('map-juntas', 'juntas');
-        fetchSnapshot();
-        connectSSE();
+		fetchSnapshot().then(() => {
+			setupTabs();
+			inlineSvgInto('map-camara', 'camara');
+			inlineSvgInto('map-assembleia', 'assembleia');
+			inlineSvgInto('map-juntas', 'juntas');
+		});
+		connectSSE();
       });
