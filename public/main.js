@@ -114,50 +114,18 @@
 
 	// Encontra regiões no SVG (paths ou grupos) e dá-lhes data-freguesia-id/nome
 	function tagRegions(svg){
-		const shapes = [...svg.querySelectorAll('g')]
-			.filter(g => {
-				const title = g.querySelector(':scope > title')?.textContent?.trim();
-				const label = g.getAttribute('inkscape:label') || '';
-				const id = g.id || '';
-				const txt = (title || label || id).toLowerCase();
+		const elements = svg.querySelectorAll('[inkscape\\:label]');
 
-				return txt.includes('vimeiro')
-					|| txt.includes('lourinh')
-					|| txt.includes('ribamar')
-					|| txt.includes('atalai')
-					|| txt.includes('reguengo')
-					|| txt.includes('moita')
-					|| txt.includes('miragaia')
-					|| txt.includes('bartolomeu')
-					|| txt.includes('santa');
-			});
+		elements.forEach(el => {
+			const label = el.getAttribute('inkscape:label');
+			const id = window.MAP_INDEX[window.normalize(label)];
+			if (!id) return;
 
-		const seen = new Set();
-
-		shapes.forEach(el => {
-			const title = el.querySelector?.(':scope > title')?.textContent?.trim();
-			const label = el.getAttribute('inkscape:label') || el.getAttribute('sodipodi:label');
-			const rawName = (title || label || el.textContent || el.id || '').trim();
-
-			if (!rawName) return;
-
-			const norm = normalizeName(rawName);
-
-			// 🔥 MAPEAMENTO DIRETO (SEM MAP_INDEX)
-			const idStr =
-			Object.entries(MAP_NAME_TO_ID)
-				.find(([k]) => normalizeName(k) === norm)?.[1];
-
-			if (!idStr) return;
-
-			if (seen.has(idStr)) return;
-			seen.add(idStr);
-
-			el.setAttribute('data-freguesia-id', idStr);
-			el.setAttribute('data-freguesia-nome', rawName);
+			el.setAttribute('data-freguesia-id', id);
+			el.setAttribute('data-freguesia-nome', label);
 			el.classList.add('cursor-pointer');
 		});
-	}
+		}
 
 	function nf(n) { return new Intl.NumberFormat("pt-PT").format(n ?? 0); }
 	function pct(num, den) { if (!den) return 0; return (num / den) * 100; }
