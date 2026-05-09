@@ -276,7 +276,7 @@
 		SNAPSHOT = await res.json();
 		hideError();
 		renderAll();
-		} catch(err){ console.error("Falha a obter snapshot:", err); showError("Sem dados ainda. Aguarde a inserção dos primeiros resultados."); }
+		} catch(err){ console.error("Falha a obter snapshot:", err); return; }
 	}
 
 	function connectSSE(){
