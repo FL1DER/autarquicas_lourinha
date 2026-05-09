@@ -529,14 +529,14 @@
 			act === 'assembleia' ? 'assembleia-reset' :
 			'juntas-reset';
 
-		document.getElementById(resetBtnId)?.addEventListener('click', ()=>{
-			if (act === 'juntas') {
-				const first = (SNAPSHOT?.juntas || [])[0]?.freguesia_id || null;
-				selected.juntas = { id: first };
-				if (first) drawJunta(first);
-				paintMap('juntas');
-				return;
-			}
+			document.getElementById(resetBtnId)?.addEventListener('click', ()=>{
+				if (act === 'juntas') {
+					selected.juntas = { id: null };
+					drawJuntaTotal();
+					paintMap('juntas');
+					return;
+				}
+			
 			selected[act] = { id:null, name:null };
 			renderAct(act);
 			const tip = document.getElementById(act+'-map-tip');
@@ -749,6 +749,50 @@
 		drawJunta(selected.juntas.id); // isto atualiza também o 5.º cartão
 		paintMap('juntas');
 		renderFregTable('juntas', SNAPSHOT?.juntas || []);
+	}
+
+	function drawJuntaTotal(){
+		const arr = SNAPSHOT?.juntas || [];
+		if (!arr.length) return;
+
+		document.getElementById("juntas-card-title").textContent = "Juntas — Total do Concelho";
+
+		const totals = aggregateTotais(arr);
+		const vot = totals.ad + totals.ps + totals.chega + totals.cdu + totals.br + totals.nu;
+		const inscritos = arr.reduce((a, r) => a + N(r.inscritos), 0);
+		const abst = 100 - pctClamp(vot, inscritos);
+
+		document.getElementById("kpi-junta-inscritos").textContent = nf(inscritos);
+		document.getElementById("kpi-junta-votantes").textContent = nf(vot);
+		document.getElementById("kpi-junta-abst").textContent = abst.toFixed(1) + " %";
+
+		const seatsTotal = 13 + (arr.length - 1) * 9;
+		const seatsAlloc = dhondtAllocate(
+			{ AD: totals.ad, PS: totals.ps, CHEGA: totals.chega, CDU: totals.cdu },
+			seatsTotal
+		);
+
+		const tbody = document.getElementById("junta-table");
+		tbody.innerHTML = PARTY_ORDER.map(pid => {
+			const votos = totals[pid.toLowerCase()] || (pid === 'AD' ? totals.ad : pid === 'PS' ? totals.ps : pid === 'CHEGA' ? totals.chega : totals.cdu);
+			const mandatos = seatsAlloc[pid] ?? 0;
+			return `<tr class="border-b border-zinc-100">
+				<td class="py-1 flex items-center gap-2">
+				<span style="background:${PARTY_COLORS[pid]};" class="inline-block w-3 h-3 rounded-sm"></span>${pid}
+				</td>
+				<td>${nf(votos)}</td>
+				<td>${pctStr(votos, vot)}</td>
+				<td class="font-semibold">${mandatos}</td>
+			</tr>`;
+		}).join("");
+
+		document.getElementById("junta-brancos").textContent = nf(totals.br);
+		document.getElementById("junta-nulos").textContent = nf(totals.nu);
+		document.getElementById("junta-brancos-pct").textContent = pctStr(totals.br, vot);
+		document.getElementById("junta-nulos-pct").textContent = pctStr(totals.nu, vot);
+
+		drawBar("junta-bar", "Juntas — Concelho", PARTY_ORDER,
+			[totals.ad, totals.ps, totals.chega, totals.cdu]);
 	}
 
 	function drawJunta(fregId){
