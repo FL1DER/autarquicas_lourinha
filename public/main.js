@@ -270,11 +270,14 @@
 	// Carregamento de dados
 	// ================================
 	async function fetchSnapshot(){
+		try {
 		const res = await fetch(API_BASE + "/api/snapshot", { cache: "no-store" });
 		if (!res.ok) { const t = await res.text().catch(() => ""); throw new Error(`${res.status} ${res.statusText}${t ? ' — ' + t : ''}`); }
 		SNAPSHOT = await res.json();
 		hideError();
 		renderAll();
+		} 
+		catch(err){ console.error("Falha a obter snapshot:", err); showError("Sem dados ainda. Aguarde a inserção dos primeiros resultados."); }
 	}
 
 	function connectSSE(){
