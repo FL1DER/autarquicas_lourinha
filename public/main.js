@@ -752,7 +752,8 @@
 	}
 
 	function drawJunta(fregId){
-		const r = (SNAPSHOT?.juntas || []).find(x => String(x.freguesia_id)===String(fregId));
+		const r = (SNAPSHOT?.juntas || []).find(x => String(x.freguesia_id)===String(fregId)) ||
+          (SNAPSHOT?.juntas || []).find(x => normalizeName(x.freguesia_nome) === normalizeName(fregId.replace(/_/g, ' ')));
 		if (!r) return;
 
 		// título
