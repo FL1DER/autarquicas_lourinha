@@ -515,7 +515,6 @@
 				return;
 			}
 			selected[act] = { id: fid, name };
-			console.log('click selected:', JSON.stringify(selected[act]));
 			renderAct(act);
 			const tip = document.getElementById(act+'-map-tip');
 			if (tip) tip.textContent = `A mostrar: ${name || fid} (clique em "Mostrar Totais" para voltar)`;
