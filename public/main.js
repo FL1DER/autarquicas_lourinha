@@ -499,7 +499,11 @@
 				if (idFromText) {
 					fid = String(idFromText);
 					const textEl = e.target.closest?.('text') || e.target;
-					name = el?.getAttribute('data-freguesia-nome') ||  (textEl?.textContent || '').replace(/\s+/g,' ').trim() || fid;
+					const tspans = textEl.querySelectorAll('tspan');
+					name = tspans.length > 0
+						? [...tspans].map(t => t.textContent.trim()).filter(Boolean).join(' ')
+						: (textEl?.textContent || '').trim();
+					name = name.replace(/\s+/g, ' ').trim() || fid;
 					textEl?.setAttribute?.('data-freguesia-id', fid);
 					textEl?.setAttribute?.('data-freguesia-nome', name);
 					el = textEl;
