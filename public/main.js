@@ -426,6 +426,9 @@
 		? (SNAPSHOT?.juntas || [])
 		: (SNAPSHOT?.[act]?.por_freguesia || []);
 
+	  console.log("IDs no mapa:", [...nodes].map(n => n.getAttribute('data-freguesia-id')));
+	  console.log("IDs nos dados:", pf.map(p => p.freguesia_id));
+
 	  nodes.forEach(el => {
 		const id = String(el.getAttribute('data-freguesia-id'));
 		const row = pf.find(x => String(x.freguesia_id) === id);
