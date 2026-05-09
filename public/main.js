@@ -457,7 +457,12 @@
 
 			const winner = winnerFromVotes(votes);
 
-			el.style.fill = winner ? PARTY_COLORS[winner] : '#e2e8f0';
+			if (winner) {
+				el.setAttribute('fill', PARTY_COLORS[winner]);
+				} 
+			else {
+				el.setAttribute('fill', '#e2e8f0');
+			}
 		});
 	}
 
