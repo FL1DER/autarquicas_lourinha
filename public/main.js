@@ -276,8 +276,7 @@
 		SNAPSHOT = await res.json();
 		hideError();
 		renderAll();
-		} 
-		catch(err){ console.error("Falha a obter snapshot:", err); showError("Sem dados ainda. Aguarde a inserção dos primeiros resultados."); }
+		} catch(err){ console.error("Falha a obter snapshot:", err); showError("Sem dados ainda. Aguarde a inserção dos primeiros resultados."); }
 	}
 
 	function connectSSE(){
@@ -285,7 +284,9 @@
 		const es = new EventSource(API_BASE + "/api/stream");
 		es.onopen = () => setLive(true);
 		es.onerror = () => setLive(false);
-		es.onmessage = async () => { await fetchSnapshot();};
+		es.onmessage = () => { fetchSnapshot(); };
+		es.onmessage = async () => { await fetchSnapshot();
+};
 		} catch(e){ setLive(false); }
 	}
 
