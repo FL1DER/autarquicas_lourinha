@@ -498,7 +498,7 @@
 				if (idFromText) {
 					fid = String(idFromText);
 					const textEl = e.target.closest?.('text') || e.target;
-					name = (textEl?.textContent || '').replace(/\s+/g,' ').trim() || fid;
+					name = el?.getAttribute('data-freguesia-nome') ||  (textEl?.textContent || '').replace(/\s+/g,' ').trim() || fid;
 					textEl?.setAttribute?.('data-freguesia-id', fid);
 					textEl?.setAttribute?.('data-freguesia-nome', name);
 					el = textEl;
