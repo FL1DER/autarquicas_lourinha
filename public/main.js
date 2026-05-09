@@ -114,9 +114,12 @@
 
 	// Encontra regiões no SVG (paths ou grupos) e dá-lhes data-freguesia-id/nome
 	function tagRegions(svg){
-	  const shapes = svg.querySelectorAll('g');
-	  shapes.forEach(el => {
-		const title = el.querySelector(':scope > title')?.textContent?.trim();
+	const shapes = svg.querySelectorAll('g, path');
+
+	const seen = new Set();
+
+	shapes.forEach(el => {
+		const title = el.querySelector?.(':scope > title')?.textContent?.trim();
 		const label = el.getAttribute('inkscape:label') || el.getAttribute('sodipodi:label');
 		const rawName = (title || label || el.id || '').trim();
 		if (!rawName) return;
@@ -124,10 +127,14 @@
 		const idStr = MAP_INDEX.get(normalizeName(rawName));
 		if (!idStr) return;
 
+		// 🚨 evita duplicados (isto é o bug que te está a estragar tudo)
+		if (seen.has(idStr)) return;
+		seen.add(idStr);
+
 		el.setAttribute('data-freguesia-id', idStr);
 		el.setAttribute('data-freguesia-nome', rawName);
 		el.classList.add('cursor-pointer');
-	  });
+	});
 	}
 
 	function nf(n) { return new Intl.NumberFormat("pt-PT").format(n ?? 0); }
