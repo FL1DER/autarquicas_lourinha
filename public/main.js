@@ -120,7 +120,7 @@
 
 		shapes.forEach(el => {
 			const rawName =
-				el.getAttribute(INKSCAPE_NS, 'label') ||
+				el.getAttribute('inkscape:label') ||
 				el.querySelector(':scope > title')?.textContent ||
 				el.id ||
 				'';
