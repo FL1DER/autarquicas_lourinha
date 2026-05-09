@@ -48,6 +48,7 @@
 		.replace(/\u00A0/g,' ')                           // NBSP → espaço normal
 		.replace(/&/g,' e ')                              // & → " e "
 		.replace(/[.\-_,:;()/]+/g,' ')                    // pontuação comum → espaço
+		.replace(/\bs\b/g, 'sao')  // "s bartolomeu" → "sao bartolomeu"
 		.toLowerCase()
 		.replace(/\s+/g,' ')                               // colapsa espaços
 		.trim();
