@@ -114,34 +114,54 @@
 
 	// Encontra regiões no SVG (paths ou grupos) e dá-lhes data-freguesia-id/nome
 	function tagRegions(svg){
-	  const shapes = svg.querySelectorAll('g, path, polygon, rect');
-	  shapes.forEach(el => {
-		const title = el.querySelector(':scope > title')?.textContent?.trim();
-		const label = el.getAttribute('inkscape:label') || el.getAttribute('sodipodi:label');
-		const rawName = (title || label || el.id || '').trim();
-		if (!rawName) return;
+		const shapes = svg.querySelectorAll('g, path, polygon, rect');
 
-		const idStr = MAP_INDEX.get(normalizeName(rawName));
-		if (!idStr) return;
+		shapes.forEach(el => {
+			const title = el.querySelector(':scope > title')?.textContent?.trim();
+			const label = el.getAttribute('inkscape:label') || el.getAttribute('sodipodi:label');
+			const rawName = (title || label || el.id || '').trim();
 
-		el.setAttribute('data-freguesia-id', idStr);
-		el.setAttribute('data-freguesia-nome', rawName);
-		el.classList.add('cursor-pointer');
-	  });
+			if (!rawName) return;
 
-	  const texts = svg.querySelectorAll('text');
-	  texts.forEach(t => {
-		const raw = (t.textContent || '').trim();
-		if (!raw) return;
+			const norm = normalizeName(rawName);
+			let idStr = MAP_INDEX.get(norm);
 
-		const idStr = MAP_INDEX.get(normalizeName(raw));
-		if (!idStr) return;
+			// 🔥 fallback crítico (o teu caso específico)
+			if (!idStr) {
+			if (norm.includes("bartolomeu") && norm.includes("moledo")) {
+				idStr = "SAO_BARTOLOMEU_E_MOLEDO";
+			}
+			}
 
-		t.setAttribute('data-freguesia-id', idStr);
-		t.setAttribute('data-freguesia-nome', raw);
-		t.style.pointerEvents = 'visiblePainted';
-		t.classList.add('cursor-pointer');
-	  });
+			if (!idStr) return;
+
+			el.setAttribute('data-freguesia-id', idStr);
+			el.setAttribute('data-freguesia-nome', rawName);
+			el.classList.add('cursor-pointer');
+		});
+
+		const texts = svg.querySelectorAll('text');
+		texts.forEach(t => {
+			const raw = (t.textContent || '').trim();
+			if (!raw) return;
+
+			const norm = normalizeName(raw);
+			let idStr = MAP_INDEX.get(norm);
+
+			// mesmo fallback no texto
+			if (!idStr) {
+			if (norm.includes("bartolomeu") && norm.includes("moledo")) {
+				idStr = "SAO_BARTOLOMEU_E_MOLEDO";
+			}
+			}
+
+			if (!idStr) return;
+
+			t.setAttribute('data-freguesia-id', idStr);
+			t.setAttribute('data-freguesia-nome', raw);
+			t.style.pointerEvents = 'visiblePainted';
+			t.classList.add('cursor-pointer');
+		});
 	}
 
 	function nf(n) { return new Intl.NumberFormat("pt-PT").format(n ?? 0); }
