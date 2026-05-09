@@ -459,7 +459,7 @@
 				el.style.fill = PARTY_COLORS[winner];
 				} 
 			else {
-				el.setAttribute('fill', '#e2e8f0');
+				el.style.fill = '#e2e8f0';
 			}
 		});
 	}
