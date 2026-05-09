@@ -595,10 +595,7 @@
 		// decidir se mostra Totais ou Freguesia
 		const sel = selected[act]; // {id, name}
 		let row = null;
-		if (sel?.id){
-			row = pf.find(x => String(x.freguesia_id) === String(sel.id)) ||
-				pf.find(x => normalizeName(x.freguesia_nome) === normalizeName(sel.id.replace(/_/g, ' ')));
-		}
+		if (sel?.id) row = findRowByIdOrName(pf, { id: sel.id, name: sel.name });
 
 		if (row){
 			titleEl.textContent = `${areaLabel} — ${row.freguesia_nome}`;
