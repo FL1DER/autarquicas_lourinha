@@ -316,72 +316,7 @@
 		  </div>`;
 	}
 
-	function renderFregTable(act, pf){
-	  const slot = document.getElementById(`${act}-freguesias-slot`);
-	  if (!slot) return;
-
-	  // ordena por nome
-	  const rows = [...pf].sort((a,b)=> String(a.freguesia_nome).localeCompare(String(b.freguesia_nome)));
-
-	  const thead = `
-		<thead class="text-xs uppercase text-zinc-500">
-		  <tr>
-			<th class="text-left py-2 px-3">Freguesia</th>
-			<th class="text-right py-2 px-3">AD</th>
-			<th class="text-right py-2 px-3">PS</th>
-			<th class="text-right py-2 px-3">CHEGA</th>
-			<th class="text-right py-2 px-3">CDU</th>
-			<th class="text-right py-2 px-3">Brancos</th>
-			<th class="text-right py-2 px-3">Nulos</th>
-			<th class="text-right py-2 px-3">Abstenção</th>
-		  </tr>
-		</thead>`;
-
-	  const tbody = `<tbody class="text-sm">
-		${rows.map(r=>{
-		  const ad = N(r.votos_ad), ps = N(r.votos_ps), ch = N(r.votos_chega), cdu = N(r.votos_cdu);
-		  const br = N(r.brancos), nu = N(r.nulos), insc = N(r.inscritos);
-		  const validos = ad + ps + ch + cdu;
-		  const votantes = validos + br + nu;
-		  const abstPct = (100 - pctClamp(votantes, insc)).toFixed(1) + " %";
-		  const winner = winnerFromVotes({AD:ad, PS:ps, CHEGA:ch, CDU:cdu});
-
-		  const nameCell = `<td class="py-2 px-3 font-medium">
-			<button class="hover:underline" data-select-freg="${r.freguesia_id}">${r.freguesia_nome}</button>
-		  </td>`;
-		  const cell = (v, pid) => `<td class="py-2 px-3 text-right ${winner===pid ? 'font-semibold' : ''}">${nf(v)}</td>`;
-
-		  return `<tr class="border-b border-zinc-100">
-			${nameCell}
-			${cell(ad,'AD')}
-			${cell(ps,'PS')}
-			${cell(ch,'CHEGA')}
-			${cell(cdu,'CDU')}
-			<td class="py-2 px-3 text-right">${nf(br)}</td>
-			<td class="py-2 px-3 text-right">${nf(nu)}</td>
-			<td class="py-2 px-3 text-right">${abstPct}</td>
-		  </tr>`;
-		}).join("")}
-	  </tbody>`;
-
-	  slot.innerHTML = `
-		<div class="rounded-xl border border-zinc-200 overflow-hidden">
-		  <table class="w-full table-fixed">
-			${thead}
-			${tbody}
-		  </table>
-		</div>`;
-
-	  // click no nome → foca a freguesia no cartão
-	  slot.querySelectorAll('[data-select-freg]').forEach(btn=>{
-		btn.onclick = () => {
-		  selected[act] = { id: String(btn.getAttribute('data-select-freg')) };
-		  renderAct(act);
-		  document.getElementById(`tab-${act}`).scrollIntoView({ behavior: 'smooth', block: 'start' });
-		};
-	  });
-	}
-
+	
 
       // ================================
       // D'Hondt
