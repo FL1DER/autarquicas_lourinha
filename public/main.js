@@ -117,15 +117,18 @@
 		const elements = svg.querySelectorAll('[inkscape\\:label]');
 
 		elements.forEach(el => {
-			const label = el.getAttribute('inkscape:label');
-			const id = window.MAP_INDEX[window.normalize(label)];
-			if (!id) return;
+			const label = el.getAttribute('inkscape:label')?.trim();
+			if (!label) return;
 
-			el.setAttribute('data-freguesia-id', id);
+			const idStr = MAP_NAME_TO_ID[label];
+			if (!idStr) return;
+
+			el.setAttribute('data-freguesia-id', idStr);
 			el.setAttribute('data-freguesia-nome', label);
 			el.classList.add('cursor-pointer');
 		});
 	}
+	
 
 	function nf(n) { return new Intl.NumberFormat("pt-PT").format(n ?? 0); }
 	function pct(num, den) { if (!den) return 0; return (num / den) * 100; }
