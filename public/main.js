@@ -683,7 +683,7 @@
 		document.getElementById("kpi-junta-votantes").textContent = nf(vot);
 		document.getElementById("kpi-junta-abst").textContent = abst.toFixed(1) + " %";
 
-		const seatsTotal = 13 + (arr.length - 1) * 9;
+		const seatsTotal = arr.reduce((sum, r) => sum + juntaSeatCountFor(r), 0);
 		const seatsAlloc = dhondtAllocate(
 			{ AD: totals.ad, PS: totals.ps, CHEGA: totals.chega, CDU: totals.cdu },
 			seatsTotal
@@ -714,8 +714,8 @@
 	}
 
 	function drawJunta(fregId){
-		const r = (SNAPSHOT?.juntas || []).find(x => String(x.freguesia_id)===String(fregId)) ||
-          (SNAPSHOT?.juntas || []).find(x => normalizeName(x.freguesia_nome) === normalizeName(fregId.replace(/_/g, ' ')));
+		const juntas = SNAPSHOT?.juntas || [];
+		const r = findRowByIdOrName(juntas, { id: fregId, name: fregId.replace(/_/g, ' ') });
 		if (!r) return;
 
 		// título
