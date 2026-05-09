@@ -114,30 +114,23 @@
 
 	// Encontra regiões no SVG (paths ou grupos) e dá-lhes data-freguesia-id/nome
 	function tagRegions(svg){
-		const shapes = svg.querySelectorAll('g, path');
+		const shapes = svg.querySelectorAll('g, path, text');
 
 		const seen = new Set();
 
 		shapes.forEach(el => {
 			const title = el.querySelector?.(':scope > title')?.textContent?.trim();
 			const label = el.getAttribute('inkscape:label') || el.getAttribute('sodipodi:label');
-			const rawName = (title || label || el.id || el.textContent || '').trim();
+			const rawName = (title || label || el.textContent || el.id || '').trim();
 
 			if (!rawName) return;
 
 			const norm = normalizeName(rawName);
 
-			let idStr = MAP_INDEX.get(norm);
-
-			// 🔥 fallback MUITO importante (resolve os teus casos reais)
-			if (!idStr) {
-			for (const [k, v] of Object.entries(MAP_NAME_TO_ID)) {
-				if (normalizeName(k) === norm) {
-				idStr = v;
-				break;
-				}
-			}
-			}
+			// 🔥 MAPEAMENTO DIRETO (SEM MAP_INDEX)
+			const idStr =
+			Object.entries(MAP_NAME_TO_ID)
+				.find(([k]) => normalizeName(k) === norm)?.[1];
 
 			if (!idStr) return;
 
