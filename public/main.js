@@ -432,15 +432,14 @@
 			? (SNAPSHOT?.juntas || [])
 			: (SNAPSHOT?.[act]?.por_freguesia || []);
 
-		// mapa direto: ID → dados
+		// mapa por nome normalizado
 		const index = new Map(
-			pf.map(r => [String(r.freguesia_id), r])
+			pf.map(r => [normalizeName(r.freguesia_nome), r])
 		);
 
 		nodes.forEach(el => {
-			const id = el.getAttribute('data-freguesia-id');
-
-			const row = index.get(id);
+			const nome = el.getAttribute('data-freguesia-nome');
+			const row = index.get(normalizeName(nome));
 
 			if (!row) {
 				el.style.fill = '#e2e8f0';
