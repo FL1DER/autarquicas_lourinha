@@ -125,7 +125,7 @@
 			el.setAttribute('data-freguesia-nome', label);
 			el.classList.add('cursor-pointer');
 		});
-		}
+	}
 
 	function nf(n) { return new Intl.NumberFormat("pt-PT").format(n ?? 0); }
 	function pct(num, den) { if (!den) return 0; return (num / den) * 100; }
