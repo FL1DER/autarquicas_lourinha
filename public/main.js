@@ -429,26 +429,33 @@
 			? (SNAPSHOT?.juntas || [])
 			: (SNAPSHOT?.[act]?.por_freguesia || []);
 
+		// 🔥 index por ID (NÃO por nome!)
+		const index = new Map(
+			pf.map(r => [String(r.freguesia_id), r])
+		);
+
 		nodes.forEach(el => {
-			const name = el.getAttribute('data-freguesia-nome') 
-					|| el.getAttribute('data-freguesia-id');
+			const id = String(el.getAttribute('data-freguesia-id'));
 
-			const row = pf.find(x =>
-			normalizeName(x.freguesia_nome) === normalizeName(name)
-			);
+			const row = index.get(id);
 
-			const votes = row ? {
-			AD:N(row.votos_ad),
-			PS:N(row.votos_ps),
-			CHEGA:N(row.votos_chega),
-			CDU:N(row.votos_cdu)
-			} : null;
+			if (!row) {
+			el.style.fill = '#e2e8f0';
+			return;
+			}
 
-			const winner = votes ? winnerFromVotes(votes) : null;
+			const votes = {
+			AD: N(row.votos_ad),
+			PS: N(row.votos_ps),
+			CHEGA: N(row.votos_chega),
+			CDU: N(row.votos_cdu)
+			};
+
+			const winner = winnerFromVotes(votes);
 
 			el.style.fill = winner ? PARTY_COLORS[winner] : '#e2e8f0';
 		});
-		}
+	}
 
 	function bindMap(act){
 		const containerId =
