@@ -45,7 +45,7 @@
 	function normalizeName(s){
 	  return String(s||'')
 		.normalize('NFD').replace(/[\u0300-\u036f]/g,'')  // remove acentos
-		.replace(/[\u200B-\u200D\uFEFF]/g,'')             // remove zero-width spaces
+		.replace(/[\u200B-\u200D\uFEFF]/g,' ')       	  // remove zero-width spaces
 		.replace(/\u00A0/g,' ')                           // NBSP → espaço normal
 		.replace(/&/g,' e ')                              // & → " e "
 		.replace(/[.\-_,:;()/]+/g,' ')                    // pontuação comum → espaço
