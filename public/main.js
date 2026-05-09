@@ -114,54 +114,34 @@
 
 	// Encontra regiões no SVG (paths ou grupos) e dá-lhes data-freguesia-id/nome
 	function tagRegions(svg){
-		const shapes = svg.querySelectorAll('g, path, polygon, rect');
+	  const shapes = svg.querySelectorAll('g, path, polygon, rect');
+	  shapes.forEach(el => {
+		const title = el.querySelector(':scope > title')?.textContent?.trim();
+		const label = el.getAttribute('inkscape:label') || el.getAttribute('sodipodi:label');
+		const rawName = (title || label || el.id || '').trim();
+		if (!rawName) return;
 
-		shapes.forEach(el => {
-			const title = el.querySelector(':scope > title')?.textContent?.trim();
-			const label = el.getAttribute('inkscape:label') || el.getAttribute('sodipodi:label');
-			const rawName = (title || label || el.id || '').trim();
+		const idStr = MAP_INDEX.get(normalizeName(rawName));
+		if (!idStr) return;
 
-			if (!rawName) return;
+		el.setAttribute('data-freguesia-id', idStr);
+		el.setAttribute('data-freguesia-nome', rawName);
+		el.classList.add('cursor-pointer');
+	  });
 
-			const norm = normalizeName(rawName);
-			let idStr = MAP_INDEX.get(norm);
+	  const texts = svg.querySelectorAll('text');
+	  texts.forEach(t => {
+		const raw = (t.textContent || '').trim();
+		if (!raw) return;
 
-			// 🔥 fallback crítico (o teu caso específico)
-			if (!idStr) {
-			if (norm.includes("bartolomeu") && norm.includes("moledo")) {
-				idStr = "SAO_BARTOLOMEU_E_MOLEDO";
-			}
-			}
+		const idStr = MAP_INDEX.get(normalizeName(raw));
+		if (!idStr) return;
 
-			if (!idStr) return;
-
-			el.setAttribute('data-freguesia-id', idStr);
-			el.setAttribute('data-freguesia-nome', rawName);
-			el.classList.add('cursor-pointer');
-		});
-
-		const texts = svg.querySelectorAll('text');
-		texts.forEach(t => {
-			const raw = (t.textContent || '').trim();
-			if (!raw) return;
-
-			const norm = normalizeName(raw);
-			let idStr = MAP_INDEX.get(norm);
-
-			// mesmo fallback no texto
-			if (!idStr) {
-			if (norm.includes("bartolomeu") && norm.includes("moledo")) {
-				idStr = "SAO_BARTOLOMEU_E_MOLEDO";
-			}
-			}
-
-			if (!idStr) return;
-
-			t.setAttribute('data-freguesia-id', idStr);
-			t.setAttribute('data-freguesia-nome', raw);
-			t.style.pointerEvents = 'visiblePainted';
-			t.classList.add('cursor-pointer');
-		});
+		t.setAttribute('data-freguesia-id', idStr);
+		t.setAttribute('data-freguesia-nome', raw);
+		t.style.pointerEvents = 'visiblePainted';
+		t.classList.add('cursor-pointer');
+	  });
 	}
 
 	function nf(n) { return new Intl.NumberFormat("pt-PT").format(n ?? 0); }
