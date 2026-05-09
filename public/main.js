@@ -114,16 +114,15 @@
 
 	// Encontra regiões no SVG (paths ou grupos) e dá-lhes data-freguesia-id/nome
 	function tagRegions(svg){
+		const INKSCAPE_NS = 'http://www.inkscape.org/namespaces/inkscape';
 		const shapes = svg.querySelectorAll('g, path, polygon, rect');
 
 		shapes.forEach(el => {
 			const rawName =
-			el.getAttribute('inkscape:label') ||
-			el.closest('[inkscape\\:label]')?.getAttribute('inkscape:label') ||
-			el.querySelector('[inkscape\\:label]')?.getAttribute('inkscape:label') ||
-			el.querySelector(':scope > title')?.textContent ||
-			el.id ||
-			'';
+				el.getAttributeNS(INKSCAPE_NS, 'label') ||
+				el.querySelector(':scope > title')?.textContent ||
+				el.id ||
+				'';
 
 			const idStr = MAP_INDEX.get(normalizeName(rawName));
 			if (!idStr) return;
