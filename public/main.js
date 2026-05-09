@@ -456,7 +456,7 @@
 			const winner = winnerFromVotes(votes);
 
 			if (winner) {
-				el.setAttribute('fill', PARTY_COLORS[winner]);
+				el.style.fill = PARTY_COLORS[winner];
 				} 
 			else {
 				el.setAttribute('fill', '#e2e8f0');
