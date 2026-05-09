@@ -426,25 +426,20 @@
 		);
 		if (!container) return;
 
-		const nodes = container.querySelectorAll('[data-freguesia-id]');
-
 		const pf = act==='juntas'
 			? (SNAPSHOT?.juntas || [])
 			: (SNAPSHOT?.[act]?.por_freguesia || []);
 
-		// mapa por nome normalizado
 		const index = new Map(
 			pf.map(r => [normalizeName(r.freguesia_nome), r])
 		);
 
-		nodes.forEach(el => {
-			const nome = el.getAttribute('data-freguesia-nome');
-			const row = index.get(normalizeName(nome));
+		container.querySelectorAll('path').forEach(el => {
+			const nome = el.getAttribute('inkscape:label');
+			if (!nome || nome.startsWith('path')) return;
 
-			if (!row) {
-				el.style.fill = '#e2e8f0';
-				return;
-			}
+			const row = index.get(normalizeName(nome));
+			if (!row) { el.style.fill = '#e2e8f0'; return; }
 
 			const votes = {
 				AD: N(row.votos_ad),
@@ -454,13 +449,7 @@
 			};
 
 			const winner = winnerFromVotes(votes);
-
-			if (winner) {
-				el.style.fill = PARTY_COLORS[winner];
-				} 
-			else {
-				el.style.fill = '#e2e8f0';
-			}
+			el.style.fill = winner ? PARTY_COLORS[winner] : '#e2e8f0';
 		});
 	}
 
