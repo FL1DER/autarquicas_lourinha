@@ -21,7 +21,7 @@
 	  "Reguengo Grande": 'REGUENGO_GRANDE',
 	  "Ribamar": 'RIBAMAR',	  
 	  "Santa Bárbara": 'SANTA_BARBARA',
-	  "S. Bartolomeu dos Galegos e Moledo": 'SAO_BARTOLOMEU_E_MOLEDO',
+	  "São Bartolomeu dos Galegos e Moledo": 'SAO_BARTOLOMEU_E_MOLEDO',
 	  "Vimeiro": 'VIMEIRO',
 	};
 
