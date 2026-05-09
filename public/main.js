@@ -284,7 +284,7 @@
 		const es = new EventSource(API_BASE + "/api/stream");
 		es.onopen = () => setLive(true);
 		es.onerror = () => setLive(false);
-		es.onmessage = () => { fetchSnapshot(); };
+		es.onmessage = async () => { await fetchSnapshot();};
 		} catch(e){ setLive(false); }
 	}
 
