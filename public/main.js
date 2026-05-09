@@ -140,7 +140,6 @@
 	function pctStr(num, den) { return pct(num, den).toFixed(1) + " %"; }
 	function fmtDate(iso) { if (!iso) return "—"; const d = new Date(iso); return d.toLocaleString("pt-PT"); }
 	function N(x) { const n = Number(x); return Number.isFinite(n) ? n : 0; }
-	function fmt(n) { try { return n.toLocaleString('pt-PT'); } catch { return String(n); } }
 
 	function hexToRgba(hex, alpha = 0.08) {
 		const m = String(hex).replace("#", "").match(/^([0-9a-f]{6})$/i);
@@ -195,7 +194,6 @@
 	function hideError(){ document.getElementById("errorMsg").classList.add("hidden"); }
 
 	function getApuracaoFor(fregId){ const ap = SNAPSHOT?.apuracao?.freguesias || []; const id = String(fregId); return ap.find(r => String(r.freguesia_id) === id) || null; }
-	function isClosedRow(r){ return N(r.mesas_total) > 0 && N(r.mesas_apuradas) === N(r.mesas_total); }
 
 	function apuradasAnyFromSnapshot(){
 		const ap = SNAPSHOT?.apuracao?.freguesias;
@@ -265,19 +263,6 @@
 		if (!res.ok) { const t = await res.text().catch(() => ""); throw new Error(`${res.status} ${res.statusText}${t ? ' — ' + t : ''}`); }
 		SNAPSHOT = await res.json();
 
-		window.FREG_MAP = new Map(
-		SNAPSHOT.camara.por_freguesia.map(r => [
-			String(r.freguesia_id),
-			r.freguesia_nome
-		])
-		);
-
-		window.FREG_ID_BY_NAME = new Map(
-		SNAPSHOT.camara.por_freguesia.map(r => [
-			normalizeName(r.freguesia_nome),
-			String(r.freguesia_id)
-		])
-		);
 		hideError();
 		renderAll();
 		} catch(err){ console.error("Falha a obter snapshot:", err); return; }
@@ -288,7 +273,6 @@
 		const es = new EventSource(API_BASE + "/api/stream");
 		es.onopen = () => setLive(true);
 		es.onerror = () => setLive(false);
-		es.onmessage = () => { fetchSnapshot(); };
 		es.onmessage = async () => { await fetchSnapshot();
 };
 		} catch(e){ setLive(false); }
@@ -450,7 +434,6 @@
 				selected.juntas = { id: fid };
 				drawJunta(fid);        // atualiza KPIs/tabela/gráfico
 				paintMap('juntas');    // destaca no mapa
-				document.getElementById('tab-juntas').scrollIntoView({ behavior:'smooth', block:'start' });
 				return;
 			}
 			selected[act] = { id: fid, name };
@@ -484,7 +467,6 @@
 	// ================================
 	  
 	function renderAll(){
-		document.getElementById("year").textContent = new Date().getFullYear();
 		document.getElementById("lastUpdated").textContent = "Atualizado " + fmtDate(SNAPSHOT?.meta?.lastUpdated);
 		renderAct('camara');
 		renderAct('assembleia');
@@ -709,7 +691,8 @@
 
 		const tbody = document.getElementById("junta-table");
 		tbody.innerHTML = PARTY_ORDER.map(pid => {
-			const votos = totals[pid.toLowerCase()] || (pid === 'AD' ? totals.ad : pid === 'PS' ? totals.ps : pid === 'CHEGA' ? totals.chega : totals.cdu);
+			const votos = pid === 'AD' ? totals.ad : pid === 'PS' ? totals.ps : pid === 'CHEGA' ? totals.chega : totals.cdu;
+
 			const mandatos = seatsAlloc[pid] ?? 0;
 			return `<tr class="border-b border-zinc-100">
 				<td class="py-1 flex items-center gap-2">
