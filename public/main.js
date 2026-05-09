@@ -114,7 +114,23 @@
 
 	// Encontra regiões no SVG (paths ou grupos) e dá-lhes data-freguesia-id/nome
 	function tagRegions(svg){
-		const shapes = svg.querySelectorAll('g, path, text');
+		const shapes = [...svg.querySelectorAll('g')]
+			.filter(g => {
+				const title = g.querySelector(':scope > title')?.textContent?.trim();
+				const label = g.getAttribute('inkscape:label') || '';
+				const id = g.id || '';
+				const txt = (title || label || id).toLowerCase();
+
+				return txt.includes('vimeiro')
+					|| txt.includes('lourinh')
+					|| txt.includes('ribamar')
+					|| txt.includes('atalai')
+					|| txt.includes('reguengo')
+					|| txt.includes('moita')
+					|| txt.includes('miragaia')
+					|| txt.includes('bartolomeu')
+					|| txt.includes('santa');
+			});
 
 		const seen = new Set();
 
