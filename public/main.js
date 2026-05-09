@@ -115,7 +115,6 @@
 
 	// Encontra regiões no SVG (paths ou grupos) e dá-lhes data-freguesia-id/nome
 	function tagRegions(svg){
-		const INKSCAPE_NS = 'http://www.inkscape.org/namespaces/inkscape';
 		const shapes = svg.querySelectorAll('g, path, polygon, rect');
 
 		shapes.forEach(el => {
