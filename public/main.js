@@ -420,27 +420,39 @@
 	}
 
 	function paintMap(act){
-		const container = document.getElementById(act==='camara' ? 'map-camara' : act==='assembleia' ? 'map-assembleia' : 'map-juntas');
+		const container = document.getElementById(
+			act==='camara' ? 'map-camara' :
+			act==='assembleia' ? 'map-assembleia' :
+			'map-juntas'
+		);
 		if (!container) return;
 
 		const nodes = container.querySelectorAll('[data-freguesia-id]');
 
-		const pf = act==='juntas' ? (SNAPSHOT?.juntas || []) : (SNAPSHOT?.[act]?.por_freguesia || []);
+		const pf = act==='juntas'
+			? (SNAPSHOT?.juntas || [])
+			: (SNAPSHOT?.[act]?.por_freguesia || []);
 
-		// 🔥 index por ID (NÃO por nome!)
+		// mapa direto: ID → dados
 		const index = new Map(
 			pf.map(r => [String(r.freguesia_id), r])
 		);
 
 		nodes.forEach(el => {
-			const svgName = el.getAttribute('data-freguesia-id');
-			const dbId = window.FREG_ID_BY_NAME?.get(normalizeName(svgName));
-			const row = index.get(dbId);
+			const id = el.getAttribute('data-freguesia-id');
 
-			if (!row) {	el.style.fill = '#e2e8f0';	return;}
+			const row = index.get(id);
+
+			if (!row) {
+				el.style.fill = '#e2e8f0';
+				return;
+			}
 
 			const votes = {
-			AD: N(row.votos_ad), PS: N(row.votos_ps), CHEGA: N(row.votos_chega), CDU: N(row.votos_cdu)
+				AD: N(row.votos_ad),
+				PS: N(row.votos_ps),
+				CHEGA: N(row.votos_chega),
+				CDU: N(row.votos_cdu)
 			};
 
 			const winner = winnerFromVotes(votes);
