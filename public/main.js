@@ -264,6 +264,20 @@
 		const res = await fetch(API_BASE + "/api/snapshot", { cache: "no-store" });
 		if (!res.ok) { const t = await res.text().catch(() => ""); throw new Error(`${res.status} ${res.statusText}${t ? ' — ' + t : ''}`); }
 		SNAPSHOT = await res.json();
+
+		window.FREG_MAP = new Map(
+		SNAPSHOT.camara.por_freguesia.map(r => [
+			String(r.freguesia_id),
+			r.freguesia_nome
+		])
+		);
+
+		window.FREG_ID_BY_NAME = new Map(
+		SNAPSHOT.camara.por_freguesia.map(r => [
+			normalizeName(r.freguesia_nome),
+			String(r.freguesia_id)
+		])
+		);
 		hideError();
 		renderAll();
 		} catch(err){ console.error("Falha a obter snapshot:", err); return; }
@@ -419,8 +433,9 @@
 		);
 
 		nodes.forEach(el => {
-			const id = String(el.getAttribute('data-freguesia-id'));
-			const row = index.get(id);
+			const svgName = el.getAttribute('data-freguesia-id');
+			const dbId = window.FREG_ID_BY_NAME?.get(normalizeName(svgName));
+			const row = index.get(dbId);
 
 			if (!row) {	el.style.fill = '#e2e8f0';	return;}
 
