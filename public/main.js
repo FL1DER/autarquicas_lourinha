@@ -75,6 +75,15 @@
 		});
 		if (r) return r;
 	  }
+	  // 3) match parcial por palavras do id
+	  if (sel?.id) {
+		  const words = normalizeName(sel.id.replace(/_/g, ' ')).split(' ').filter(w => w.length > 3);
+		  const r = rows.find(x => {
+		  	const m = normalizeName(x.freguesia_nome);
+		  	return words.every(w => m.includes(w));
+		});
+		if (r) return r;
+	  }
 	  return null;
 	}
 
