@@ -128,20 +128,6 @@
 		el.setAttribute('data-freguesia-nome', rawName);
 		el.classList.add('cursor-pointer');
 	  });
-
-	  const texts = svg.querySelectorAll('text');
-	  texts.forEach(t => {
-		const raw = (t.textContent || '').trim();
-		if (!raw) return;
-
-		const idStr = MAP_INDEX.get(normalizeName(raw));
-		if (!idStr) return;
-
-		t.setAttribute('data-freguesia-id', idStr);
-		t.setAttribute('data-freguesia-nome', raw);
-		t.style.pointerEvents = 'visiblePainted';
-		t.classList.add('cursor-pointer');
-	  });
 	}
 
 	function nf(n) { return new Intl.NumberFormat("pt-PT").format(n ?? 0); }
@@ -416,18 +402,12 @@
 	}
 
 	function paintMap(act){
-		const container = document.getElementById(
-			act==='camara' ? 'map-camara' :
-			act==='assembleia' ? 'map-assembleia' :
-			'map-juntas'
-		);
+		const container = document.getElementById(act==='camara' ? 'map-camara' : act==='assembleia' ? 'map-assembleia' : 'map-juntas');
 		if (!container) return;
 
 		const nodes = container.querySelectorAll('[data-freguesia-id]');
 
-		const pf = act==='juntas'
-			? (SNAPSHOT?.juntas || [])
-			: (SNAPSHOT?.[act]?.por_freguesia || []);
+		const pf = act==='juntas' ? (SNAPSHOT?.juntas || []) : (SNAPSHOT?.[act]?.por_freguesia || []);
 
 		// 🔥 index por ID (NÃO por nome!)
 		const index = new Map(
@@ -436,19 +416,12 @@
 
 		nodes.forEach(el => {
 			const id = String(el.getAttribute('data-freguesia-id'));
-
 			const row = index.get(id);
 
-			if (!row) {
-			el.style.fill = '#e2e8f0';
-			return;
-			}
+			if (!row) {	el.style.fill = '#e2e8f0';	return;}
 
 			const votes = {
-			AD: N(row.votos_ad),
-			PS: N(row.votos_ps),
-			CHEGA: N(row.votos_chega),
-			CDU: N(row.votos_cdu)
+			AD: N(row.votos_ad), PS: N(row.votos_ps), CHEGA: N(row.votos_chega), CDU: N(row.votos_cdu)
 			};
 
 			const winner = winnerFromVotes(votes);
