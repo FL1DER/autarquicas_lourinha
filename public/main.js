@@ -417,36 +417,43 @@
 
 	function paintMap(act){
 		const container = document.getElementById(
-			act==='camara' ? 'map-camara' :	act==='assembleia' ? 'map-assembleia' :	'map-juntas'
+			act==='camara' ? 'map-camara' :
+			act==='assembleia' ? 'map-assembleia' :
+			'map-juntas'
 		);
 		if (!container) return;
 
-		const nodes = container.querySelectorAll('[data-freguesia-id]:not(text):not(tspan)');
+		const nodes = container.querySelectorAll('[data-freguesia-id]');
+
 		const pf = act==='juntas'
 			? (SNAPSHOT?.juntas || [])
 			: (SNAPSHOT?.[act]?.por_freguesia || []);
 
+		// 🔥 index por ID (NÃO por nome!)
+		const index = new Map(
+			pf.map(r => [String(r.freguesia_id), r])
+		);
+
 		nodes.forEach(el => {
-			const svgId = String(el.getAttribute('data-freguesia-id'));
+			const id = String(el.getAttribute('data-freguesia-id'));
 
-			// converter SVG ID -> nome oficial -> ID da API
-			const fregName = Object.entries(MAP_NAME_TO_ID)
-			.find(([name, id]) => id === svgId)?.[0];
+			const row = index.get(id);
 
-			const apiId = fregName
-			? MAP_NAME_TO_ID[fregName]
-			: null;
+			if (!row) {
+			el.style.fill = '#e2e8f0';
+			return;
+			}
 
-			// encontrar linha dos dados
-			const row = pf.find(x => String(x.freguesia_id) === String(apiId));
+			const votes = {
+			AD: N(row.votos_ad),
+			PS: N(row.votos_ps),
+			CHEGA: N(row.votos_chega),
+			CDU: N(row.votos_cdu)
+			};
 
-			const votes = row ? {
-			AD: N(row.votos_ad), PS: N(row.votos_ps), CHEGA: N(row.votos_chega), CDU: N(row.votos_cdu)} : null;
-
-			const winner = votes ? winnerFromVotes(votes) : null;
+			const winner = winnerFromVotes(votes);
 
 			el.style.fill = winner ? PARTY_COLORS[winner] : '#e2e8f0';
-			el.classList.toggle('is-selected',selected[act]?.id && String(selected[act].id) === String(apiId));
 		});
 	}
 
