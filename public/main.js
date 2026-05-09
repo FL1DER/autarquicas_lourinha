@@ -114,21 +114,21 @@
 
 	// Encontra regiões no SVG (paths ou grupos) e dá-lhes data-freguesia-id/nome
 	function tagRegions(svg){
-		const elements = svg.querySelectorAll('[inkscape\\:label]');
+	  const shapes = svg.querySelectorAll('g, path, polygon, rect');
+	  shapes.forEach(el => {
+		const title = el.querySelector(':scope > title')?.textContent?.trim();
+		const label = el.getAttribute('inkscape:label') || el.getAttribute('sodipodi:label');
+		const rawName = (title || label || el.id || '').trim();
+		if (!rawName) return;
 
-		elements.forEach(el => {
-			const label = el.getAttribute('inkscape:label')?.trim();
-			if (!label) return;
+		const idStr = MAP_INDEX.get(normalizeName(rawName));
+		if (!idStr) return;
 
-			const idStr = MAP_NAME_TO_ID[label];
-			if (!idStr) return;
-
-			el.setAttribute('data-freguesia-id', idStr);
-			el.setAttribute('data-freguesia-nome', label);
-			el.classList.add('cursor-pointer');
-		});
+		el.setAttribute('data-freguesia-id', idStr);
+		el.setAttribute('data-freguesia-nome', rawName);
+		el.classList.add('cursor-pointer');
+	  });
 	}
-	
 
 	function nf(n) { return new Intl.NumberFormat("pt-PT").format(n ?? 0); }
 	function pct(num, den) { if (!den) return 0; return (num / den) * 100; }
